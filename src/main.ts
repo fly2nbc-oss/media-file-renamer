@@ -304,6 +304,7 @@ function renderFileList() {
           : "None";
 
     const newName = preview ? preview.new_name : "…";
+    const nameChanges = preview && preview.new_name !== file.filename;
     const warningHtml =
       preview?.warning
         ? ` <span class="warning-icon" title="${escapeHtml(preview.warning)}">⚠</span>`
@@ -314,7 +315,7 @@ function renderFileList() {
       <td class="col-num">${i + 1}</td>
       <td class="col-name" title="${escapeHtml(file.filename)}">${escapeHtml(file.filename)}</td>
       <td class="col-date"><span class="date-badge ${badgeClass}">${badgeLabel}</span> ${dateText}</td>
-      <td class="col-new new-name-cell">${escapeHtml(newName)}${warningHtml}</td>
+      <td class="col-new${nameChanges ? " new-name-cell" : ""}">${escapeHtml(newName)}${warningHtml}</td>
     `;
 
     const checkbox = tr.querySelector("input[type=checkbox]") as HTMLInputElement;

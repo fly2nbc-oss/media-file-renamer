@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Media File Renamer",
+  "productName": "media-file-renamer",
   "version": "0.1.0",
   "identifier": "com.rh.media-file-renamer",
   "build": {

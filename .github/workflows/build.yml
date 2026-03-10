@@ -90,6 +90,8 @@ jobs:
 
       - name: Build Tauri (Linux)
         run: npm run tauri build
+        env:
+          NO_STRIP: 1
 
       - name: Upload Linux executable (standalone, no installer)
         uses: actions/upload-artifact@v4
