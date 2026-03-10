@@ -7,17 +7,20 @@ on:
     branches: [main, master]
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-windows:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: "20"
+          node-version: "22"
           cache: "npm"
 
       - name: Install Rust (stable)
@@ -37,19 +40,19 @@ jobs:
         run: npm run tauri build
 
       - name: Upload Windows EXE (standalone, no installer)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: media-file-renamer-windows-exe
           path: src-tauri/target/release/media-file-renamer.exe
 
       - name: Upload Windows MSI
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: media-file-renamer-windows-msi
           path: src-tauri/target/release/bundle/msi/*.msi
 
       - name: Upload Windows NSIS
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: success()
         with:
           name: media-file-renamer-windows-nsis
@@ -59,12 +62,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: "20"
+          node-version: "22"
           cache: "npm"
 
       - name: Install Rust (stable)
@@ -94,20 +97,20 @@ jobs:
           NO_STRIP: 1
 
       - name: Upload Linux executable (standalone, no installer)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: media-file-renamer-linux-standalone
           path: src-tauri/target/release/media-file-renamer
 
       - name: Upload Linux AppImage
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: success()
         with:
           name: media-file-renamer-linux-appimage
           path: src-tauri/target/release/bundle/appimage/*.AppImage
 
       - name: Upload Linux deb
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: success()
         with:
           name: media-file-renamer-linux-deb

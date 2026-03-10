@@ -129,6 +129,19 @@ pub async fn execute_rename(
 
         // Skip if source and target are the same
         if original_path == new_path {
+            if offset_seconds != 0 {
+                if let Some(ref dt_str) = entry.datetime {
+                    if let Ok(dt) = NaiveDateTime::parse_from_str(dt_str, "%Y-%m-%dT%H:%M:%S") {
+                        let adjusted = renamer::apply_offset(&dt, offset_seconds);
+                        let ft = filetime::FileTime::from_unix_time(adjusted.and_utc().timestamp(), 0);
+                        let _ = filetime::set_file_times(original_path, ft, ft);
+
+                        if has_exiftool {
+                            let _ = exif_handler::write_exif_dates(original_path, &adjusted);
+                        }
+                    }
+                }
+            }
             success_count += 1;
             continue;
         }
@@ -211,9 +224,9 @@ fn resolve_conflict(target: &Path) -> std::path::PathBuf {
 
     for i in 1..=999 {
         let candidate = if ext.is_empty() {
-            parent.join(format!("{}_{:02}", stem, i))
+            parent.join(format!("{}_{}", stem, i))
         } else {
-            parent.join(format!("{}_{:02}.{}", stem, i, ext))
+            parent.join(format!("{}_{}.{}", stem, i, ext))
         };
         if !candidate.exists() {
             return candidate;

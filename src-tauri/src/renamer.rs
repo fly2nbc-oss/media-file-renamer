@@ -54,7 +54,7 @@ pub fn generate_previews(
         *full_name_counts.entry(full).or_insert(0) += 1;
     }
 
-    // Assign final names, adding _01, _02 etc. for duplicates
+    // Assign final names, adding _1, _2 etc. for duplicates
     let mut occurrence_index: HashMap<String, usize> = HashMap::new();
     let mut previews = Vec::with_capacity(entries.len());
 
@@ -67,7 +67,7 @@ pub fn generate_previews(
             let name = if *idx == 0 {
                 base_full.clone()
             } else {
-                format!("{}_{:02}.{}", stem, idx, ext)
+                format!("{}_{}.{}", stem, idx, ext)
             };
             *idx += 1;
             name
@@ -97,6 +97,10 @@ fn format_stem(datetime: &NaiveDateTime, original_name: &str, format: &RenameFor
                 .unwrap_or_default();
             format!("{}_{}", datetime.format("%y%m%d"), stem)
         }
+        RenameFormat::NoRename => Path::new(original_name)
+            .file_stem()
+            .map(|s| s.to_string_lossy().to_string())
+            .unwrap_or_default(),
     }
 }
 

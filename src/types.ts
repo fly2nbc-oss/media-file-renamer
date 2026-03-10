@@ -34,7 +34,8 @@ export interface ToolsStatus {
 export type RenameFormat =
   | "YYYY_MM_DD__hhmmss"
   | "YYMMDD_hhmmss"
-  | "YYMMDD_original";
+  | "YYMMDD_original"
+  | "NO_RENAME";
 
 export interface AppState {
   files: FileEntry[];

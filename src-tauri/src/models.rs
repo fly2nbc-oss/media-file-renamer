@@ -8,6 +8,8 @@ pub enum RenameFormat {
     Format2,
     #[serde(rename = "YYMMDD_original")]
     Format3,
+    #[serde(rename = "NO_RENAME")]
+    NoRename,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

@@ -53,7 +53,7 @@ Unzip the artifact and run the executable or installer. Artifact contents use fi
 
 **Prerequisites**
 
-- [Node.js](https://nodejs.org/) (e.g. v20) and npm
+- [Node.js](https://nodejs.org/) (v22 LTS recommended) and npm
 - [Rust](https://rustup.rs/) (stable)
 - System libraries (examples for Arch/Manjaro and Debian/Ubuntu):
 
