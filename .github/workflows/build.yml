@@ -36,6 +36,12 @@ jobs:
       - name: Build Tauri (Windows)
         run: npm run tauri build
 
+      - name: Upload Windows EXE (standalone, no installer)
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-exe
+          path: src-tauri/target/release/media-file-renamer.exe
+
       - name: Upload Windows MSI
         uses: actions/upload-artifact@v4
         with:
@@ -84,6 +90,12 @@ jobs:
 
       - name: Build Tauri (Linux)
         run: npm run tauri build
+
+      - name: Upload Linux executable (standalone, no installer)
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-exe
+          path: src-tauri/target/release/media-file-renamer
 
       - name: Upload Linux AppImage
         uses: actions/upload-artifact@v4

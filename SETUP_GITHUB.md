@@ -130,12 +130,14 @@ Falls `git push` nach Benutzername/Passwort fragt:
 
 1. In **Actions** den letzten **erfolgreichen** Run anklicken (grüner Haken).
 2. Unten auf der Seite siehst du **Artifacts**:
+   - **windows-exe** – Windows-Programm (nur `.exe`, ohne Installer; WebView2 muss vorhanden sein)
    - **windows-msi** – Windows-Installer (`.msi`)
-   - **windows-nsis** – optionaler Windows-Installer (`.exe`)
+   - **windows-nsis** – Windows-Installer (`.exe`)
+   - **linux-exe** – Linux-Programm (nur ausführbare Datei, ohne Paket)
    - **linux-appimage** – Linux AppImage
    - **linux-deb** – Linux `.deb`-Paket
 3. Auf den gewünschten Namen klicken → die Datei wird als ZIP heruntergeladen.
-4. ZIP entpacken und die enthaltene `.msi` (Windows) bzw. `.AppImage`/`.deb` (Linux) verwenden.
+4. ZIP entpacken und die enthaltene `.exe` (Windows) bzw. ausführbare Datei/`.AppImage`/`.deb` (Linux) verwenden.
 
 ---
 
