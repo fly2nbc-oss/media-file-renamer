@@ -39,20 +39,20 @@ jobs:
       - name: Upload Windows EXE (standalone, no installer)
         uses: actions/upload-artifact@v4
         with:
-          name: windows-exe
+          name: media-file-renamer-windows-exe
           path: src-tauri/target/release/media-file-renamer.exe
 
       - name: Upload Windows MSI
         uses: actions/upload-artifact@v4
         with:
-          name: windows-msi
+          name: media-file-renamer-windows-msi
           path: src-tauri/target/release/bundle/msi/*.msi
 
       - name: Upload Windows NSIS
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: windows-nsis
+          name: media-file-renamer-windows-nsis
           path: src-tauri/target/release/bundle/nsis/*.exe
 
   build-linux:
@@ -96,19 +96,19 @@ jobs:
       - name: Upload Linux executable (standalone, no installer)
         uses: actions/upload-artifact@v4
         with:
-          name: linux-exe
+          name: media-file-renamer-linux-standalone
           path: src-tauri/target/release/media-file-renamer
 
       - name: Upload Linux AppImage
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: linux-appimage
+          name: media-file-renamer-linux-appimage
           path: src-tauri/target/release/bundle/appimage/*.AppImage
 
       - name: Upload Linux deb
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: linux-deb
+          name: media-file-renamer-linux-deb
           path: src-tauri/target/release/bundle/deb/*.deb

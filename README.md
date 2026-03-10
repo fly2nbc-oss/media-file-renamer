@@ -40,12 +40,12 @@ A desktop app to batch-rename photos and videos using EXIF (or file) dates. Buil
 
 | Artifact | Content | Use on |
 |----------|---------|--------|
-| **windows-exe** | Standalone `.exe` (no installer) | Windows (requires [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) if missing) |
-| **windows-msi** | MSI installer | Windows |
-| **windows-nsis** | NSIS installer (single `.exe` setup) | Windows |
-| **linux-exe** | Standalone binary | Linux |
-| **linux-deb** | `.deb` package | Debian / Ubuntu / compatible |
-| **linux-appimage** | `.AppImage` | Most Linux distros |
+| **media-file-renamer-windows-exe** | Standalone `.exe` (no installer) | Windows (requires [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) if missing) |
+| **media-file-renamer-windows-msi** | MSI installer | Windows |
+| **media-file-renamer-windows-nsis** | NSIS installer (single `.exe` setup) | Windows |
+| **media-file-renamer-linux-standalone** | Standalone binary | Linux |
+| **media-file-renamer-linux-deb** | `.deb` package | Debian / Ubuntu / compatible |
+| **media-file-renamer-linux-appimage** | `.AppImage` | Most Linux distros |
 
 Unzip the artifact and run the executable or installer. Artifact contents use filesystem-friendly names (e.g. `media-file-renamer_0.1.0_amd64.deb`, `media-file-renamer_0.1.0_amd64.AppImage`, `media-file-renamer.exe`).
 
