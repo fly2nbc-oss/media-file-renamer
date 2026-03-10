@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Media File Renamer</title>
+    <script type="module" src="/src/main.ts" defer></script>
+  </head>
+
+  <body>
+    <div id="app">
+      <!-- Toolbar -->
+      <header id="toolbar">
+        <div class="tb">
+          <div class="tb-group">
+            <button id="btn-add" type="button" class="tb-btn" title="Add Files">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              <span>Add</span>
+            </button>
+            <button id="btn-remove" type="button" class="tb-btn" title="Remove Selected" disabled>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 8h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              <span>Remove</span>
+            </button>
+          </div>
+          <span class="tb-sep"></span>
+          <div class="tb-group">
+            <select id="format-select" title="Naming format">
+              <option value="YYYY_MM_DD__hhmmss" selected>YYYY_MM_DD__hhmmss</option>
+              <option value="YYMMDD_hhmmss">YYMMDD_hhmmss</option>
+              <option value="YYMMDD_original">YYMMDD_original</option>
+            </select>
+          </div>
+          <span class="tb-sep"></span>
+          <div class="tb-group tb-offset">
+            <label for="offset-seconds" class="tb-lbl">Offset</label>
+            <input type="number" id="offset-seconds" value="0" placeholder="0" />
+            <span class="tb-unit">s</span>
+            <button id="btn-expand-offset" type="button" class="tb-btn-icon" title="Expand offset fields">
+              <svg id="expand-icon" width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+          <span class="tb-sep"></span>
+          <div class="tb-group">
+            <label class="tb-chk" title="Copy originals to backup folder before renaming">
+              <input type="checkbox" id="chk-backup" /><span>Backup</span>
+            </label>
+            <label class="tb-chk" title="Convert HEIC/HEIF files to JPG (90% quality)">
+              <input type="checkbox" id="chk-heic" checked /><span>HEIC→JPG</span>
+            </label>
+          </div>
+        </div>
+        <div id="offset-expanded" class="offset-expanded hidden">
+          <div class="offset-fields">
+            <label><span>Years</span><input type="number" id="off-years" value="0" /></label>
+            <label><span>Months</span><input type="number" id="off-months" value="0" /></label>
+            <label><span>Days</span><input type="number" id="off-days" value="0" /></label>
+            <label><span>Hours</span><input type="number" id="off-hours" value="0" /></label>
+            <label><span>Minutes</span><input type="number" id="off-minutes" value="0" /></label>
+            <label><span>Seconds</span><input type="number" id="off-secs" value="0" /></label>
+          </div>
+        </div>
+      </header>
+
+      <!-- File List -->
+      <section id="file-list-container">
+        <div id="empty-state" class="empty-state">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><path d="M24 6v36M6 24h36" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.3"/><rect x="8" y="8" width="32" height="32" rx="4" stroke="currentColor" stroke-width="2" stroke-dasharray="4 4" opacity="0.4"/></svg>
+          <p>Drag &amp; drop files or folders here</p>
+          <p class="hint">or click <strong>Add Files</strong> above</p>
+        </div>
+        <div id="file-table-wrap" class="hidden">
+          <table id="file-table">
+            <thead>
+              <tr>
+                <th class="col-check"><input type="checkbox" id="chk-all" title="Select All" /></th>
+                <th class="col-num">#</th>
+                <th class="col-name">Current Name</th>
+                <th class="col-date">Date Found</th>
+                <th class="col-new">New Name</th>
+              </tr>
+            </thead>
+            <tbody id="file-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Bottom Bar -->
+      <footer id="bottom-bar">
+        <button id="btn-undo" type="button" disabled title="Undo last rename">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 7h7a3 3 0 0 1 0 6H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 4L3 7l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Undo Last</span>
+        </button>
+        <div id="status-text"></div>
+        <button id="btn-rename" type="button" disabled>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 14l1.5-4.5L12 1l2 2-8.5 8.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Rename 0 Files</span>
+        </button>
+      </footer>
+
+      <!-- Progress Overlay -->
+      <div id="progress-overlay" class="hidden">
+        <div class="progress-card">
+          <h3>Renaming files…</h3>
+          <div class="progress-bar-track"><div id="progress-bar-fill" class="progress-bar-fill"></div></div>
+          <p id="progress-text">0 / 0</p>
+          <p id="progress-file" class="progress-file"></p>
+        </div>
+      </div>
+
+      <!-- Error Panel -->
+      <div id="error-panel" class="hidden">
+        <div class="error-header">
+          <span id="error-title">Errors</span>
+          <button id="btn-close-errors" type="button" title="Close">✕</button>
+        </div>
+        <ul id="error-list"></ul>
+      </div>
+    </div>
+  </body>
+</html>
