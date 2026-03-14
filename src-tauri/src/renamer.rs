@@ -28,8 +28,6 @@ pub fn generate_previews(
 
         let warning = if entry.date_source == DateSource::None {
             Some("No date found – file will not be renamed".to_string())
-        } else if entry.date_source == DateSource::FileSystem {
-            Some("Using file system date (no EXIF data)".to_string())
         } else {
             None
         };

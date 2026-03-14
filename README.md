@@ -15,9 +15,9 @@ A desktop app to batch-rename photos and videos using EXIF (or file) dates. Buil
 - **Time offset:** correct wrong camera time (e.g. timezone) with a seconds field or expanded Years / Months / Days / Hours / Minutes / Seconds. Offset is applied to filenames, file timestamps, and EXIF (when `exiftool` is available).
 - **Live preview** of the new names before renaming; names that actually change are highlighted in blue.
 - **Optional backup:** create a `backup_YYYYMMDD_HHMMSS` folder and copy originals before renaming.
-- **HEIC → JPG:** optional conversion (90% quality) via `heif-convert`; EXIF is preserved; original HEIC is removed after success.
+- **HEIC → JPG:** optional conversion (90% quality) via built-in `libheif-rs`; EXIF is preserved; original HEIC is removed after success.
 - **Progress** overlay and **error log** panel after a run.
-- **Undo** the last rename (one level only).
+- **Undo** the last rename (one level only). For HEIC→JPG conversions, full HEIC restoration requires **Backup**; without backup, undo restores the converted JPG path only.
 - **Light/Dark** UI follows system theme.
 
 ---
@@ -47,7 +47,7 @@ A desktop app to batch-rename photos and videos using EXIF (or file) dates. Buil
 | **media-file-renamer-linux-deb** | `.deb` package | Debian / Ubuntu / compatible |
 | **media-file-renamer-linux-appimage** | `.AppImage` | Most Linux distros |
 
-Unzip the artifact and run the executable or installer. Artifact contents use filesystem-friendly names (e.g. `media-file-renamer_0.1.0_amd64.deb`, `media-file-renamer_0.1.0_amd64.AppImage`, `media-file-renamer.exe`).
+Unzip the artifact and run the executable or installer. Artifact contents use filesystem-friendly names (e.g. `media-file-renamer_1.0.0_amd64.deb`, `media-file-renamer_1.0.0_amd64.AppImage`, `media-file-renamer.exe`).
 
 ### Option B: Build from source (Linux)
 
@@ -69,9 +69,15 @@ sudo pacman -S webkit2gtk-4.1 gtk3 libappindicator-gtk3 librsvg patchelf
 sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libappindicator3-dev librsvg2-dev patchelf
 ```
 
-**Optional (for full functionality):**
+**HEIC support dependency (build/link):**
 
-- **HEIC → JPG:** `libheif` (e.g. `sudo pacman -S libheif` or `sudo apt install libheif-dev`)
+- **libheif ≥ 1.17 development package** is required to build from source (`libheif-dev` on Debian/Ubuntu, `libheif` on Arch/Manjaro; Windows via vcpkg). Runtime availability depends on your bundle/target environment.
+  - **Arch / Manjaro:** `sudo pacman -S libheif`
+  - **Debian / Ubuntu:** `sudo apt install libheif-dev`
+  - **Windows:** install via [vcpkg](https://vcpkg.io/) — `vcpkg install libheif` (or use `cargo vcpkg build`)
+
+**Optional (runtime):**
+
 - **EXIF writing** (when using time offset): `perl-image-exiftool` (e.g. `sudo pacman -S perl-image-exiftool` or `sudo apt install libimage-exiftool-perl`)
 
 **Build**
@@ -86,9 +92,9 @@ npm run tauri:build
 Outputs (under `src-tauri/target/release/` and `.../bundle/`):
 
 - Binary: `media-file-renamer`
-- **.deb:** `bundle/deb/media-file-renamer_0.1.0_amd64.deb`
-- **.rpm:** `bundle/rpm/media-file-renamer-0.1.0-1.x86_64.rpm`
-- **.AppImage:** `bundle/appimage/media-file-renamer_0.1.0_amd64.AppImage`
+- **.deb:** `bundle/deb/media-file-renamer_1.0.0_amd64.deb`
+- **.rpm:** `bundle/rpm/media-file-renamer-1.0.0-1.x86_64.rpm`
+- **.AppImage:** `bundle/appimage/media-file-renamer_1.0.0_amd64.AppImage`
 
 Bundle filenames use the product name `media-file-renamer` (no spaces) for filesystem compatibility. The build uses `NO_STRIP=1` so AppImage succeeds on modern distros.
 
@@ -98,10 +104,10 @@ Install [Rust](https://rustup.rs/), [Node.js](https://nodejs.org/), and [Microso
 
 ```bash
 npm install
-npm run tauri build
+npm run tauri -- build
 ```
 
-Artifacts are under `src-tauri\target\release\` and `...\bundle\` (e.g. `media-file-renamer_0.1.0_x64_en-US.msi`, `media-file-renamer.exe`).
+Artifacts are under `src-tauri\target\release\` and `...\bundle\` (e.g. `media-file-renamer_1.0.0_x64_en-US.msi`, `media-file-renamer.exe`).
 
 ---
 
@@ -136,7 +142,7 @@ media-file-renamer/
 │   │   ├── commands.rs     # Tauri commands (scan, preview, rename, undo)
 │   │   ├── models.rs       # Data structures
 │   │   ├── exif_handler.rs # EXIF read; video date; exiftool write
-│   │   ├── heic_converter.rs # HEIC → JPG via heif-convert
+│   │   ├── heic_converter.rs # HEIC → JPG via libheif-rs
 │   │   ├── renamer.rs      # Name formats, offset, duplicate handling
 │   │   ├── backup.rs       # Backup folder creation
 │   │   └── undo.rs         # Undo log save/restore
@@ -153,7 +159,7 @@ media-file-renamer/
 
 - **App:** Tauri v2 (Rust + webview)
 - **Frontend:** Vanilla TypeScript, Vite, CSS (no framework)
-- **Backend:** Rust — `kamadak-exif`, `chrono`, `filetime`, `walkdir`; optional system tools: `exiftool`, `heif-convert`
+- **Backend:** Rust — `kamadak-exif`, `chrono`, `filetime`, `walkdir`, `libheif-rs`, `image`; optional system tool: `exiftool`
 
 ---
 
@@ -170,4 +176,4 @@ Runs the app with hot-reload (Vite on port 1420). Edit `src/*` and `src-tauri/sr
 
 ## License
 
-See repository license file (if present).
+Licensed under the Apache License, Version 2.0. See `LICENSE`.

@@ -52,13 +52,17 @@
           </div>
         </div>
         <div id="offset-expanded" class="offset-expanded hidden">
+          <div class="offset-expanded-header">
+            <span class="offset-expanded-title">Offset details</span>
+            <span class="offset-expanded-note">Positive and negative values are supported</span>
+          </div>
           <div class="offset-fields">
-            <label><span>Years</span><input type="number" id="off-years" value="0" /></label>
-            <label><span>Months</span><input type="number" id="off-months" value="0" /></label>
-            <label><span>Days</span><input type="number" id="off-days" value="0" /></label>
-            <label><span>Hours</span><input type="number" id="off-hours" value="0" /></label>
-            <label><span>Minutes</span><input type="number" id="off-minutes" value="0" /></label>
-            <label><span>Seconds</span><input type="number" id="off-secs" value="0" /></label>
+            <label class="offset-field"><span class="offset-name">Years</span><input type="number" id="off-years" value="0" /></label>
+            <label class="offset-field"><span class="offset-name">Months</span><input type="number" id="off-months" value="0" /></label>
+            <label class="offset-field"><span class="offset-name">Days</span><input type="number" id="off-days" value="0" /></label>
+            <label class="offset-field"><span class="offset-name">Hours</span><input type="number" id="off-hours" value="0" /></label>
+            <label class="offset-field"><span class="offset-name">Minutes</span><input type="number" id="off-minutes" value="0" /></label>
+            <label class="offset-field"><span class="offset-name">Seconds</span><input type="number" id="off-secs" value="0" /></label>
           </div>
         </div>
       </header>
@@ -92,6 +96,9 @@
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 7h7a3 3 0 0 1 0 6H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 4L3 7l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <span>Undo Last</span>
         </button>
+        <button id="btn-about" type="button" title="About this app">
+          <span>About</span>
+        </button>
         <div id="status-text"></div>
         <button id="btn-rename" type="button" disabled>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 14l1.5-4.5L12 1l2 2-8.5 8.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -116,6 +123,28 @@
           <button id="btn-close-errors" type="button" title="Close">✕</button>
         </div>
         <ul id="error-list"></ul>
+      </div>
+
+      <!-- About Dialog -->
+      <div id="about-dialog" class="about-overlay hidden">
+        <div class="about-card" role="dialog" aria-modal="true" aria-labelledby="about-title">
+          <div class="about-header">
+            <h3 id="about-title">Media File Renamer</h3>
+            <button id="btn-close-about" type="button" title="Close">✕</button>
+          </div>
+          <div class="about-content">
+            <p><strong>Version:</strong> 1.0.0</p>
+            <p><strong>Author:</strong> fly2nbc</p>
+            <p><strong>Copyright:</strong> © 2026 fly2nbc</p>
+            <p><strong>License:</strong> Apache-2.0</p>
+            <p>
+              <strong>Repository:</strong>
+              <a href="https://github.com/fly2nbc-oss/media-file-renamer" target="_blank" rel="noopener noreferrer">
+                github.com/fly2nbc-oss/media-file-renamer
+              </a>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </body>

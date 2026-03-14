@@ -101,8 +101,9 @@ fn read_video_creation_date(path: &Path) -> Option<NaiveDateTime> {
         return None;
     }
 
-    // Mac epoch (1904-01-01) to Unix epoch offset
-    let unix_ts = creation_time as i64 - 2_082_844_800;
+    /// Mac epoch (1904-01-01) to Unix epoch offset in seconds.
+    const MAC_EPOCH_UNIX_OFFSET: i64 = 2_082_844_800;
+    let unix_ts = creation_time as i64 - MAC_EPOCH_UNIX_OFFSET;
     chrono::DateTime::from_timestamp(unix_ts, 0).map(|dt| dt.naive_utc())
 }
 

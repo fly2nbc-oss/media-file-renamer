@@ -1,4 +1,5 @@
 use std::path::Path;
+use std::collections::HashMap;
 
 use chrono::NaiveDateTime;
 use tauri::Emitter;
@@ -99,9 +100,11 @@ pub async fn execute_rename(
 
     let previews = renamer::generate_previews(&entries, &format, offset_seconds, convert_heic);
 
-    if create_backup {
-        backup::create_backup(&entries)?;
-    }
+    let backup_map: HashMap<String, String> = if create_backup {
+        backup::create_backup(&entries)?
+    } else {
+        HashMap::new()
+    };
 
     let has_exiftool = exif_handler::is_exiftool_available();
 
@@ -180,9 +183,12 @@ pub async fn execute_rename(
                     }
                 }
 
+                let was_heic_conversion = entry.is_heic && convert_heic;
                 undo_entries.push(UndoEntry {
                     original_path: entry.path.clone(),
                     new_path: final_path.to_string_lossy().to_string(),
+                    was_heic_conversion,
+                    backup_original_path: backup_map.get(&entry.path).cloned(),
                 });
                 success_count += 1;
             }

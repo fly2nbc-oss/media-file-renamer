@@ -51,6 +51,7 @@ const $tableWrap = document.getElementById("file-table-wrap") as HTMLElement;
 const $tbody = document.getElementById("file-tbody") as HTMLTableSectionElement;
 const $chkAll = document.getElementById("chk-all") as HTMLInputElement;
 const $undoBtn = document.getElementById("btn-undo") as HTMLButtonElement;
+const $aboutBtn = document.getElementById("btn-about") as HTMLButtonElement;
 const $renameBtn = document.getElementById("btn-rename") as HTMLButtonElement;
 const $statusText = document.getElementById("status-text") as HTMLElement;
 const $progressOverlay = document.getElementById("progress-overlay") as HTMLElement;
@@ -62,6 +63,8 @@ const $errorTitle = document.getElementById("error-title") as HTMLElement;
 const $errorList = document.getElementById("error-list") as HTMLUListElement;
 const $closeErrors = document.getElementById("btn-close-errors") as HTMLButtonElement;
 const $fileListContainer = document.getElementById("file-list-container") as HTMLElement;
+const $aboutDialog = document.getElementById("about-dialog") as HTMLElement;
+const $closeAbout = document.getElementById("btn-close-about") as HTMLButtonElement;
 
 // ── Init ──
 
@@ -113,7 +116,19 @@ function bindEvents() {
 
   $renameBtn.addEventListener("click", handleRename);
   $undoBtn.addEventListener("click", handleUndo);
+  $aboutBtn.addEventListener("click", openAboutDialog);
+  $closeAbout.addEventListener("click", closeAboutDialog);
   $closeErrors.addEventListener("click", () => $errorPanel.classList.add("hidden"));
+  $aboutDialog.addEventListener("click", (event) => {
+    if (event.target === $aboutDialog) {
+      closeAboutDialog();
+    }
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !$aboutDialog.classList.contains("hidden")) {
+      closeAboutDialog();
+    }
+  });
 
   listen<ProgressPayload>("rename-progress", (event) => {
     const { current, total, filename } = event.payload;
@@ -182,23 +197,20 @@ function handleRemoveSelected() {
   updateView();
 }
 
+function openAboutDialog() {
+  $aboutDialog.classList.remove("hidden");
+}
+
+function closeAboutDialog() {
+  $aboutDialog.classList.add("hidden");
+}
+
 async function handleRename() {
   if (state.files.length === 0) return;
 
   if (state.files.length > 500) {
     if (!confirm(`You are about to rename ${state.files.length} files. Continue?`)) {
       return;
-    }
-  }
-
-  if (state.convertHeic && !state.tools.heif_convert) {
-    const hasHeic = state.files.some((f) => f.is_heic);
-    if (hasHeic) {
-      alert(
-        "heif-convert is not installed. HEIC files cannot be converted.\n" +
-        "Install with: sudo pacman -S libheif\n\n" +
-        "HEIC files will be renamed without conversion."
-      );
     }
   }
 

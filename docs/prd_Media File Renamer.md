@@ -46,7 +46,7 @@ Eine Desktop-Anwendung (Tauri v2, Rust + Vanilla TypeScript) für Linux, die es 
   * Hinzufügen von Dateien und Ordnern per Drag & Drop (rekursive Ordner-Durchsuchung)
   * Entfernen einzelner oder mehrerer Dateien aus der Liste (Checkboxen + "Remove"-Button)
   * Anzeige der zu bearbeitenden Dateien in scrollbarer Tabelle mit Spalten: Checkbox, #, Current Name, Date Found, New Name
-  * Bei gleichen Ziel-Dateinamen fortlaufende Nummerierung (_01, _02, …)
+  * Bei gleichen Ziel-Dateinamen fortlaufende Nummerierung (_1, _2, …)
   * Starten des Umbenennens per "Rename"-Button
   * Bestätigungsdialog bei >500 Dateien
   * Alle Buttons mit SVG-Icons
@@ -77,7 +77,7 @@ Eine Desktop-Anwendung (Tauri v2, Rust + Vanilla TypeScript) für Linux, die es 
 
 * **HEIC-zu-JPG-Konvertierung**
   * Optionale Checkbox "HEIC→JPG" in der Toolbar (standardmäßig aktiviert)
-  * Konvertierung via `heif-convert` (Systemtool aus libheif-Paket)
+  * Konvertierung via `libheif-rs` (eingebettet, kein externes Tool nötig)
   * JPEG-Qualität: 90%
   * EXIF-Metadaten werden automatisch übertragen
   * Original-HEIC-Datei wird nach erfolgreicher Konvertierung gelöscht
@@ -141,12 +141,12 @@ Fußleiste mit Undo-Button (links), Statustext (Mitte), Rename-Button (rechts).
 ### Edge Cases & UI-Hinweise
 * **Keine EXIF-Daten**: Gelbes "File"-Badge, Warnung im Preview, Fallback auf Dateidatum
 * **Kein Datum verfügbar**: Rotes "None"-Badge, Datei wird beim Umbenennen übersprungen
-* **Namenskonflikte**: Bei Duplikaten innerhalb des Batches automatisch Suffix (_01, _02, …); bei Konflikten auf der Festplatte ebenfalls automatische Auflösung
+* **Namenskonflikte**: Bei Duplikaten innerhalb des Batches automatisch Suffix (_1, _2, …); bei Konflikten auf der Festplatte ebenfalls automatische Auflösung
 * **Fehlgeschlagene Operationen**: Klare Fehlermeldungen mit Dateinamen und Grund im Error-Panel
 * **Leere Liste**: Zentrierter Platzhalter mit Drag & Drop-Icon und Hinweistext
 * **Ungültige Dateitypen**: Werden beim Scannen automatisch ignoriert
 * **Große Dateimengen**: Bestätigungsdialog bei >500 Dateien
-* **HEIC ohne heif-convert**: Warnung, dass HEIC-Dateien nicht konvertiert werden können, mit Installationshinweis
+* **HEIC-Konvertierung**: Immer verfügbar (libheif-rs eingebettet)
 
 ## 6. Narrative
 
@@ -189,7 +189,7 @@ Michael lehnt sich zurück. Was früher Stunden gedauert hätte, war in zwei Min
 * **EXIF-Lesen**: `kamadak-exif` Crate (Pure Rust, unterstützt JPEG/TIFF/HEIF)
 * **Video-Datum**: Manuelles MP4/MOV Atom-Parsing (mvhd Creation-Time)
 * **EXIF-Schreiben**: `exiftool` (externes Systemtool, optional)
-* **HEIC-Konvertierung**: `heif-convert` (externes Systemtool aus libheif, optional)
+* **HEIC-Konvertierung**: `libheif-rs` Crate (bindet libheif ein, kein externes Tool nötig)
 * **Datei-Zeitstempel**: `filetime` Crate
 * **Datums-Arithmetik**: `chrono` Crate
 * **Verzeichnis-Traversierung**: `walkdir` Crate
@@ -197,13 +197,13 @@ Michael lehnt sich zurück. Was früher Stunden gedauert hätte, war in zwei Min
 
 ### Systemvoraussetzungen (Linux)
 * Tauri v2 Runtime-Abhängigkeiten (GTK, WebKit2GTK)
-* Optional: `sudo pacman -S libheif` (für HEIC→JPG)
+* Build-Abhängigkeit: `libheif-dev ≥ 1.17` (für HEIC→JPG, wird zur Compile-Zeit gelinkt)
 * Optional: `sudo pacman -S perl-image-exiftool` (für EXIF-Schreiben bei Offset)
 
 ### Modulstruktur (Rust Backend)
 * `models.rs` — Datentypen (FileEntry, RenameFormat, PreviewEntry, etc.)
 * `exif_handler.rs` — EXIF-Lesen (Bilder), Video-Datum (MP4/MOV), EXIF-Schreiben
-* `heic_converter.rs` — HEIC→JPG via heif-convert Subprocess
+* `heic_converter.rs` — HEIC→JPG via libheif-rs
 * `renamer.rs` — Namensformate, Duplikat-Handling, Offset-Berechnung
 * `backup.rs` — Backup-Verzeichnis erstellen, Dateien kopieren
 * `undo.rs` — Undo-Log verwalten, letzte Operation rückgängig machen
@@ -237,14 +237,4 @@ Michael lehnt sich zurück. Was früher Stunden gedauert hätte, war in zwei Min
 
 **Team**: 1 Fullstack-Developer
 
-**Dependencies**: kamadak-exif (Rust Crate), Tauri v2 Framework, Optional: exiftool, heif-convert (Systemtools)
-
-## 10. Versioning strategy
-
-Die Produktversionierung folgt Semantic Versioning (`MAJOR.MINOR.PATCH`):
-
-* **MAJOR**: nicht abwaertskompatible (breaking) Aenderungen
-* **MINOR**: neue, abwaertskompatible Features
-* **PATCH**: Bugfixes, Security-Haertung, kleinere Verbesserungen
-
-Release- und Bump-Regeln sind bewusst als Entwicklungsrichtlinie ausgelagert und im Projektdokument `docs/versioning.md` beschrieben.
+**Dependencies**: kamadak-exif, libheif-rs, image (Rust Crates), Tauri v2 Framework, Optional: exiftool (Systemtool)

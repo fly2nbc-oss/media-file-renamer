@@ -53,17 +53,62 @@ pub fn execute_undo(app: &tauri::AppHandle) -> Result<String, String> {
         let new_path = Path::new(&entry.new_path);
         let original_path = Path::new(&entry.original_path);
 
-        if !new_path.exists() {
+        if entry.was_heic_conversion {
+            match &entry.backup_original_path {
+                Some(backup_path) => {
+                    let backup_path = Path::new(backup_path);
+                    if !backup_path.exists() {
+                        errors.push(format!(
+                            "Backup copy not found for {}",
+                            entry.original_path
+                        ));
+                        continue;
+                    }
+
+                    if new_path.exists() {
+                        if let Err(e) = fs::remove_file(new_path) {
+                            errors.push(format!(
+                                "Failed to remove converted file {}: {}",
+                                new_path.display(),
+                                e
+                            ));
+                            continue;
+                        }
+                    }
+
+                    if let Err(e) = fs::copy(backup_path, original_path) {
+                        errors.push(format!(
+                            "Failed to restore original from backup {}: {}",
+                            original_path.display(),
+                            e
+                        ));
+                    } else {
+                        success += 1;
+                    }
+                }
+                None => {
+                    if !new_path.exists() {
+                        errors.push(format!("File not found: {}", entry.new_path));
+                        continue;
+                    }
+
+                    let fallback_jpg_path = original_path.with_extension("jpg");
+                    if let Err(e) = fs::rename(new_path, &fallback_jpg_path) {
+                        errors.push(format!(
+                            "Failed to partially restore converted file {}: {}",
+                            new_path.display(),
+                            e
+                        ));
+                    } else {
+                        success += 1;
+                    }
+                }
+            }
+        } else if !new_path.exists() {
             errors.push(format!("File not found: {}", entry.new_path));
             continue;
-        }
-
-        if let Err(e) = fs::rename(new_path, original_path) {
-            errors.push(format!(
-                "Failed to restore {}: {}",
-                new_path.display(),
-                e
-            ));
+        } else if let Err(e) = fs::rename(new_path, original_path) {
+            errors.push(format!("Failed to restore {}: {}", new_path.display(), e));
         } else {
             success += 1;
         }

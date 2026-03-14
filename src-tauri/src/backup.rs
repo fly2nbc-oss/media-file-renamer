@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 
 use crate::models::FileEntry;
 
-pub fn create_backup(entries: &[FileEntry]) -> Result<Vec<String>, String> {
+pub fn create_backup(entries: &[FileEntry]) -> Result<HashMap<String, String>, String> {
     let timestamp = chrono::Local::now().format("%Y%m%d_%H%M%S").to_string();
 
     let mut dirs: HashMap<PathBuf, Vec<&FileEntry>> = HashMap::new();
@@ -16,7 +16,7 @@ pub fn create_backup(entries: &[FileEntry]) -> Result<Vec<String>, String> {
         dirs.entry(parent).or_default().push(entry);
     }
 
-    let mut backup_dirs = Vec::new();
+    let mut backup_map: HashMap<String, String> = HashMap::new();
 
     for (dir, files) in &dirs {
         let backup_dir = dir.join(format!("backup_{}", timestamp));
@@ -28,10 +28,12 @@ pub fn create_backup(entries: &[FileEntry]) -> Result<Vec<String>, String> {
             let dst = backup_dir.join(&file_entry.filename);
             std::fs::copy(src, &dst)
                 .map_err(|e| format!("Failed to backup {}: {}", file_entry.filename, e))?;
+            backup_map.insert(
+                file_entry.path.clone(),
+                dst.to_string_lossy().to_string(),
+            );
         }
-
-        backup_dirs.push(backup_dir.to_string_lossy().to_string());
     }
 
-    Ok(backup_dirs)
+    Ok(backup_map)
 }

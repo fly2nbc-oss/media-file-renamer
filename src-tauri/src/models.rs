@@ -57,6 +57,10 @@ pub struct RenameErrorEntry {
 pub struct UndoEntry {
     pub original_path: String,
     pub new_path: String,
+    #[serde(default)]
+    pub was_heic_conversion: bool,
+    #[serde(default)]
+    pub backup_original_path: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

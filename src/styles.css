@@ -276,31 +276,59 @@ button:focus-visible {
 
 /* Offset expanded row */
 .offset-expanded {
-  padding: 5px 0 6px;
+  padding: 7px 2px 8px;
   border-top: 1px solid var(--line-soft);
 }
 
-.offset-fields {
+.offset-expanded-header {
   display: flex;
-  gap: 6px;
-  padding-left: 2px;
+  align-items: baseline;
+  gap: var(--space-sm);
+  margin-bottom: 6px;
 }
 
-.offset-fields label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.offset-expanded-title {
   font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--muted);
 }
 
-.offset-fields label span {
-  min-width: 4.2em;
+.offset-expanded-note {
+  font-size: 11px;
+  color: var(--muted);
+  opacity: 0.9;
+}
+
+.offset-fields {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(78px, 1fr));
+  gap: 6px;
+}
+
+.offset-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 6px 7px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}
+
+.offset-name {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--muted);
+  line-height: 1;
 }
 
 .offset-fields input {
-  width: 48px;
-  padding: 2px 5px;
+  width: 100%;
+  padding: 3px 6px;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: var(--bg);
@@ -308,7 +336,13 @@ button:focus-visible {
   font-family: var(--font-ui);
   font-size: 11px;
   text-align: right;
-  height: 22px;
+  height: 24px;
+}
+
+@media (max-width: 980px) {
+  .offset-fields {
+    grid-template-columns: repeat(3, minmax(90px, 1fr));
+  }
 }
 
 /* Generic button reset */
@@ -627,6 +661,68 @@ button:disabled {
 #error-list .err-reason {
   color: var(--muted);
   margin-left: var(--space-xs);
+}
+
+/* ── About dialog ── */
+
+.about-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 120;
+}
+
+.about-card {
+  width: min(560px, calc(100vw - 24px));
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.about-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px var(--space-md);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.about-header h3 {
+  font-size: 15px;
+  color: var(--text);
+}
+
+.about-header button {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 15px;
+  padding: 2px 8px;
+  min-height: auto;
+}
+
+.about-content {
+  padding: var(--space-md);
+  display: grid;
+  gap: 8px;
+}
+
+.about-content p {
+  font-size: 12px;
+  color: var(--text);
+}
+
+.about-content a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.about-content a:hover {
+  text-decoration: underline;
 }
 
 /* ── Drag & Drop visual feedback ── */
