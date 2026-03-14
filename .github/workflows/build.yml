@@ -34,9 +34,10 @@ jobs:
           workspaces: "src-tauri -> target"
 
       - name: Install vcpkg
+        id: vcpkg
         uses: lukka/run-vcpkg@v11
         with:
-          vcpkgGitCommitId: "a34c873a9717a888f58dc05268dea15592c2f0ff"
+          vcpkgGitCommitId: "e0edebd1dc2d03cf7d02349df91de74ef4d0c00e"
 
       - name: Install libheif via vcpkg
         run: vcpkg install libheif:x64-windows
@@ -47,7 +48,8 @@ jobs:
       - name: Build Tauri (Windows)
         run: npm run tauri build
         env:
-          VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+          CI: "true"
+          VCPKG_ROOT: ${{ steps.vcpkg.outputs.vcpkgRoot }}
 
       - name: Upload Windows EXE (standalone, no installer)
         uses: actions/upload-artifact@v6
@@ -105,7 +107,8 @@ jobs:
       - name: Build Tauri (Linux)
         run: npm run tauri build
         env:
-          NO_STRIP: 1
+          CI: "true"
+          NO_STRIP: "1"
 
       - name: Upload Linux executable (standalone, no installer)
         uses: actions/upload-artifact@v6
