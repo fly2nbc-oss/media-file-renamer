@@ -40,7 +40,7 @@ jobs:
           vcpkgGitCommitId: "e0edebd1dc2d03cf7d02349df91de74ef4d0c00e"
 
       - name: Install libheif via vcpkg
-        run: vcpkg install libheif:x64-windows
+        run: vcpkg install libheif:x64-windows-static-md
 
       - name: Install dependencies
         run: npm ci
