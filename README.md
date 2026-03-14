@@ -49,6 +49,8 @@ A desktop app to batch-rename photos and videos using EXIF (or file) dates. Buil
 
 Unzip the artifact and run the executable or installer. Artifact contents use filesystem-friendly names (e.g. `media-file-renamer_1.0.0_amd64.deb`, `media-file-renamer_1.0.0_amd64.AppImage`, `media-file-renamer.exe`).
 
+**Releases:** For versioned downloads (e.g. `v1.0.0`), see **Releases** on GitHub. Pushing a tag `v*` triggers a build and creates a release with all artifacts attached. See `docs/RELEASE.md` for how to publish a release.
+
 ### Option B: Build from source (Linux)
 
 **Prerequisites**
@@ -171,6 +173,25 @@ npm run tauri dev
 ```
 
 Runs the app with hot-reload (Vite on port 1420). Edit `src/*` and `src-tauri/src/*` as needed.
+
+---
+
+## Versioning
+
+This project follows Semantic Versioning (`MAJOR.MINOR.PATCH`).
+
+- `MAJOR`: breaking changes
+- `MINOR`: new backward-compatible features
+- `PATCH`: backward-compatible fixes/improvements
+
+Automation commands:
+
+- `npm run version:major`
+- `npm run version:minor`
+- `npm run version:patch`
+- `npm run version:auto`
+
+For the full policy and release mapping, see `docs/versioning.md`.
 
 ---
 

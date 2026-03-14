@@ -3,6 +3,7 @@ name: Build
 on:
   push:
     branches: [main, master]
+    tags: ["v*"]
   pull_request:
     branches: [main, master]
   workflow_dispatch:
@@ -128,3 +129,54 @@ jobs:
         with:
           name: media-file-renamer-linux-deb
           path: src-tauri/target/release/bundle/deb/*.deb
+
+  release:
+    needs: [build-windows, build-linux]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: media-file-renamer-windows-exe
+          path: release-windows-exe
+      - name: Download Windows MSI
+        uses: actions/download-artifact@v4
+        with:
+          name: media-file-renamer-windows-msi
+          path: release-windows-msi
+      - name: Download Windows NSIS
+        uses: actions/download-artifact@v4
+        with:
+          name: media-file-renamer-windows-nsis
+          path: release-windows-nsis
+      - name: Download Linux standalone
+        uses: actions/download-artifact@v4
+        with:
+          name: media-file-renamer-linux-standalone
+          path: release-linux
+      - name: Download Linux AppImage
+        uses: actions/download-artifact@v4
+        with:
+          name: media-file-renamer-linux-appimage
+          path: release-linux-appimage
+      - name: Download Linux deb
+        uses: actions/download-artifact@v4
+        with:
+          name: media-file-renamer-linux-deb
+          path: release-linux-deb
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            release-windows-exe/*
+            release-windows-msi/*
+            release-windows-nsis/*
+            release-linux/*
+            release-linux-appimage/*
+            release-linux-deb/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
