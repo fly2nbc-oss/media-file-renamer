@@ -49,7 +49,6 @@ jobs:
         run: npm run tauri build
         env:
           CI: "true"
-          VCPKG_ROOT: ${{ steps.vcpkg.outputs.vcpkgRoot }}
 
       - name: Upload Windows EXE (standalone, no installer)
         uses: actions/upload-artifact@v6
