@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import { getVersion } from "@tauri-apps/api/app";
 import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { open } from "@tauri-apps/plugin-dialog";
 import type {
@@ -16,6 +17,12 @@ const MEDIA_EXTENSIONS = [
   "jpg", "jpeg", "png", "heic", "heif", "tiff", "tif",
   "webp", "gif", "bmp", "mp4", "mov", "avi", "mkv",
 ];
+
+/** Minimal file count to show a confirmation dialog before renaming. */
+const CONFIRM_LARGE_BATCH_THRESHOLD = 500;
+
+/** Debounce delay (ms) for preview refresh on offset/format changes. */
+const PREVIEW_DEBOUNCE_MS = 100;
 
 const state: AppState = {
   files: [],
@@ -65,6 +72,7 @@ const $closeErrors = document.getElementById("btn-close-errors") as HTMLButtonEl
 const $fileListContainer = document.getElementById("file-list-container") as HTMLElement;
 const $aboutDialog = document.getElementById("about-dialog") as HTMLElement;
 const $closeAbout = document.getElementById("btn-close-about") as HTMLButtonElement;
+const $aboutVersion = document.getElementById("about-version") as HTMLElement;
 
 // ── Init ──
 
@@ -72,9 +80,18 @@ async function init() {
   state.tools = await invoke<ToolsStatus>("check_tools");
   state.canUndo = await invoke<boolean>("has_undo");
   updateUndoButton();
+  await hydrateAboutDialog();
 
   bindEvents();
   setupDragDrop();
+}
+
+async function hydrateAboutDialog() {
+  try {
+    $aboutVersion.textContent = await getVersion();
+  } catch {
+    // Keep the placeholder when runtime app metadata is unavailable.
+  }
 }
 
 // ── Event binding ──
@@ -208,7 +225,7 @@ function closeAboutDialog() {
 async function handleRename() {
   if (state.files.length === 0) return;
 
-  if (state.files.length > 500) {
+  if (state.files.length > CONFIRM_LARGE_BATCH_THRESHOLD) {
     if (!confirm(`You are about to rename ${state.files.length} files. Continue?`)) {
       return;
     }
@@ -264,9 +281,17 @@ async function handleUndo() {
 // ── Preview ──
 
 let previewTimeout: ReturnType<typeof setTimeout> | null = null;
+let previewRequestCounter = 0;
 
 async function refreshPreview() {
+  previewRequestCounter += 1;
+  const requestId = previewRequestCounter;
+
   if (state.files.length === 0) {
+    if (previewTimeout) {
+      clearTimeout(previewTimeout);
+      previewTimeout = null;
+    }
     state.previews = [];
     renderFileList();
     updateRenameButton();
@@ -276,18 +301,22 @@ async function refreshPreview() {
   if (previewTimeout) clearTimeout(previewTimeout);
   previewTimeout = setTimeout(async () => {
     try {
-      state.previews = await invoke<PreviewEntry[]>("preview_rename", {
+      const previews = await invoke<PreviewEntry[]>("preview_rename", {
         entries: state.files,
         format: state.format,
         offsetSeconds: state.offsetSeconds,
         convertHeic: state.convertHeic,
       });
+      if (requestId !== previewRequestCounter) return;
+      state.previews = previews;
     } catch {
+      if (requestId !== previewRequestCounter) return;
       state.previews = [];
     }
+    if (requestId !== previewRequestCounter) return;
     renderFileList();
     updateRenameButton();
-  }, 100);
+  }, PREVIEW_DEBOUNCE_MS);
 }
 
 // ── Rendering ──
