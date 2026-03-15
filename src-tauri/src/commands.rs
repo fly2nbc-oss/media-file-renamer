@@ -130,75 +130,95 @@ pub async fn execute_rename(
             continue;
         }
 
-        // Skip if source and target are the same
         if original_path == new_path {
-            if offset_seconds != 0 {
-                if let Some(ref dt_str) = entry.datetime {
-                    if let Ok(dt) = NaiveDateTime::parse_from_str(dt_str, "%Y-%m-%dT%H:%M:%S") {
-                        let adjusted = renamer::apply_offset(&dt, offset_seconds);
-                        let ft = filetime::FileTime::from_unix_time(adjusted.and_utc().timestamp(), 0);
-                        let _ = filetime::set_file_times(original_path, ft, ft);
-
-                        if has_exiftool {
-                            let _ = exif_handler::write_exif_dates(original_path, &adjusted);
-                        }
-                    }
-                }
-            }
-            success_count += 1;
             continue;
         }
 
         // Ensure target doesn't already exist on disk (outside our batch)
         let final_path = resolve_conflict(&new_path);
 
-        let rename_result = if entry.is_heic && convert_heic {
-            heic_converter::convert_heic_to_jpg(original_path, &final_path, 90)
-                .and_then(|()| {
-                    std::fs::remove_file(original_path)
-                        .map_err(|e| format!("Conversion succeeded but failed to remove original: {}", e))
-                })
-        } else {
-            std::fs::rename(original_path, &final_path)
-                .map_err(|e| e.to_string())
-        };
+        let mut actual_final_path = final_path.clone();
+        let mut was_heic_conversion = false;
+        let mut rename_failed = false;
 
-        match rename_result {
-            Ok(()) => {
-                if offset_seconds != 0 {
-                    if let Some(ref dt_str) = entry.datetime {
-                        if let Ok(dt) = NaiveDateTime::parse_from_str(dt_str, "%Y-%m-%dT%H:%M:%S")
-                        {
-                            let adjusted = renamer::apply_offset(&dt, offset_seconds);
-                            let ft = filetime::FileTime::from_unix_time(
-                                adjusted.and_utc().timestamp(),
-                                0,
-                            );
-                            let _ = filetime::set_file_times(&final_path, ft, ft);
-
-                            if has_exiftool {
-                                let _ = exif_handler::write_exif_dates(&final_path, &adjusted);
-                            }
+        if entry.is_heic && convert_heic {
+            match heic_converter::convert_heic_to_jpg(original_path, &final_path, 90) {
+                Ok(()) => {
+                    was_heic_conversion = true;
+                    if let Err(e) = std::fs::remove_file(original_path) {
+                        errors.push(RenameErrorEntry {
+                            filename: entry.filename.clone(),
+                            reason: format!(
+                                "Conversion succeeded but failed to remove original: {}",
+                                e
+                            ),
+                        });
+                    }
+                }
+                Err(convert_err) => {
+                    // Fallback: rename keeping original extension
+                    let fallback =
+                        resolve_conflict(&final_path.with_extension(&entry.extension));
+                    match std::fs::rename(original_path, &fallback) {
+                        Ok(()) => {
+                            actual_final_path = fallback;
+                            errors.push(RenameErrorEntry {
+                                filename: entry.filename.clone(),
+                                reason: format!(
+                                    "HEIC→JPG failed: {}, renamed without conversion",
+                                    convert_err
+                                ),
+                            });
+                        }
+                        Err(e) => {
+                            errors.push(RenameErrorEntry {
+                                filename: entry.filename.clone(),
+                                reason: format!("{}, rename also failed: {}", convert_err, e),
+                            });
+                            rename_failed = true;
                         }
                     }
                 }
-
-                let was_heic_conversion = entry.is_heic && convert_heic;
-                undo_entries.push(UndoEntry {
-                    original_path: entry.path.clone(),
-                    new_path: final_path.to_string_lossy().to_string(),
-                    was_heic_conversion,
-                    backup_original_path: backup_map.get(&entry.path).cloned(),
-                });
-                success_count += 1;
             }
-            Err(e) => {
-                errors.push(RenameErrorEntry {
-                    filename: entry.filename.clone(),
-                    reason: e,
-                });
+        } else {
+            match std::fs::rename(original_path, &final_path) {
+                Ok(()) => {}
+                Err(e) => {
+                    errors.push(RenameErrorEntry {
+                        filename: entry.filename.clone(),
+                        reason: e.to_string(),
+                    });
+                    rename_failed = true;
+                }
             }
         }
+
+        if rename_failed {
+            continue;
+        }
+
+        if offset_seconds != 0 {
+            if let Some(ref dt_str) = entry.datetime {
+                if let Ok(dt) = NaiveDateTime::parse_from_str(dt_str, "%Y-%m-%dT%H:%M:%S") {
+                    let adjusted = renamer::apply_offset(&dt, offset_seconds);
+                    let ft =
+                        filetime::FileTime::from_unix_time(adjusted.and_utc().timestamp(), 0);
+                    let _ = filetime::set_file_times(&actual_final_path, ft, ft);
+
+                    if has_exiftool {
+                        let _ = exif_handler::write_exif_dates(&actual_final_path, &adjusted);
+                    }
+                }
+            }
+        }
+
+        undo_entries.push(UndoEntry {
+            original_path: entry.path.clone(),
+            new_path: actual_final_path.to_string_lossy().to_string(),
+            was_heic_conversion,
+            backup_original_path: backup_map.get(&entry.path).cloned(),
+        });
+        success_count += 1;
     }
 
     let undo_log = UndoLog {

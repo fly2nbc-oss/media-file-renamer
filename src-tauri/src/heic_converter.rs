@@ -5,7 +5,25 @@ use image::codecs::jpeg::JpegEncoder;
 use image::ImageEncoder;
 use libheif_rs::{ColorSpace, HeifContext, ItemId, LibHeif, RgbChroma};
 
+/// Detect actual file format from magic bytes.
+/// Returns true if the file is already a JPEG despite having a .heic extension.
+fn is_actually_jpeg(path: &Path) -> Result<bool, String> {
+    let mut file = std::fs::File::open(path)
+        .map_err(|e| format!("Failed to open file: {}", e))?;
+    let mut magic = [0u8; 3];
+    std::io::Read::read_exact(&mut file, &mut magic)
+        .map_err(|e| format!("Failed to read magic bytes: {}", e))?;
+    Ok(magic == [0xFF, 0xD8, 0xFF])
+}
+
 pub fn convert_heic_to_jpg(heic_path: &Path, jpg_path: &Path, quality: u8) -> Result<(), String> {
+    // Handle mislabeled JPEG files with .heic extension
+    if is_actually_jpeg(heic_path)? {
+        std::fs::copy(heic_path, jpg_path)
+            .map_err(|e| format!("Failed to copy JPEG-as-HEIC file: {}", e))?;
+        return Ok(());
+    }
+
     let lib_heif = LibHeif::new();
     let ctx = HeifContext::read_from_file(
         heic_path

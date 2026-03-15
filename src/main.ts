@@ -223,10 +223,18 @@ function closeAboutDialog() {
 }
 
 async function handleRename() {
-  if (state.files.length === 0) return;
+  const filesToRename: FileEntry[] = [];
+  for (let i = 0; i < state.files.length; i++) {
+    const preview = state.previews[i];
+    if (preview && preview.new_name !== state.files[i].filename) {
+      filesToRename.push(state.files[i]);
+    }
+  }
 
-  if (state.files.length > CONFIRM_LARGE_BATCH_THRESHOLD) {
-    if (!confirm(`You are about to rename ${state.files.length} files. Continue?`)) {
+  if (filesToRename.length === 0) return;
+
+  if (filesToRename.length > CONFIRM_LARGE_BATCH_THRESHOLD) {
+    if (!confirm(`You are about to rename ${filesToRename.length} files. Continue?`)) {
       return;
     }
   }
@@ -234,11 +242,11 @@ async function handleRename() {
   state.isProcessing = true;
   $progressOverlay.classList.remove("hidden");
   $progressFill.style.width = "0%";
-  $progressText.textContent = "0 / " + state.files.length;
+  $progressText.textContent = "0 / " + filesToRename.length;
 
   try {
     const result = await invoke<RenameResult>("execute_rename", {
-      entries: state.files,
+      entries: filesToRename,
       format: state.format,
       offsetSeconds: state.offsetSeconds,
       createBackup: state.createBackup,
@@ -385,8 +393,19 @@ function updateView() {
   updateRemoveButton();
 }
 
+function countFilesToRename(): number {
+  let count = 0;
+  for (let i = 0; i < state.files.length; i++) {
+    const preview = state.previews[i];
+    if (preview && preview.new_name !== state.files[i].filename) {
+      count++;
+    }
+  }
+  return count;
+}
+
 function updateRenameButton() {
-  const count = state.files.length;
+  const count = countFilesToRename();
   $renameBtn.disabled = count === 0 || state.isProcessing;
   $renameBtn.querySelector("span")!.textContent = `Rename ${count} File${count !== 1 ? "s" : ""}`;
 }
