@@ -1,9 +1,3 @@
-Hier ist eine polierte Version deiner `README.md`. Ich habe sie so strukturiert, dass sie visuell ansprechender ist, klare Handlungsaufforderungen (Call-to-Action) enthält und die technischen Details übersichtlich darstellt.
-
-Du kannst diesen Block direkt kopieren und deine alte `README.md` damit ersetzen.
-
----
-
 # 📸 Media File Renamer
 
 > **Batch-Umbenennung von Fotos und Videos basierend auf EXIF-Daten – schnell, sicher und plattformübergreifend.**
@@ -110,7 +104,3 @@ npm run tauri build
 ## 📄 Lizenz
 
 Lizenziert unter der **Apache License, Version 2.0**.
-
----
-
-**Möchtest du, dass ich dir auch noch ein paar "Social Preview" Bilder oder ein Logo-Design-Konzept erstelle, um die Seite optisch abzurunden?**
