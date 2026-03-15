@@ -2,14 +2,16 @@
   "name": "media-file-renamer",
   "private": true,
   "license": "Apache-2.0",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
-    "tauri:build": "NO_STRIP=1 tauri build"
+    "tauri:build": "NO_STRIP=1 tauri build",
+    "version:patch": "node scripts/version-bump.mjs patch",
+    "version:auto": "node scripts/version-bump.mjs auto"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",
