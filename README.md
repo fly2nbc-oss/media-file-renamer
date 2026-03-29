@@ -12,6 +12,11 @@
 
 ---
 
+## 📸 Screenshots
+
+![Demo Linux](screenshots/demo-linux.png)  
+*Media File Renamer unter Linux.*
+
 ## ✨ Features
 
 * **Intelligente Umbenennung:** Verarbeitet Dateien oder ganze Ordner via **Drag & Drop**.
