@@ -2,6 +2,12 @@
 
 > **Batch-Umbenennung von Fotos und Videos basierend auf EXIF-Daten – schnell, sicher und plattformübergreifend.**
 
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/fly2nbc-oss/media-file-renamer/blob/main/LICENSE)
+[![Latest Release](https://img.shields.io/github/v/release/fly2nbc-oss/media-file-renamer)](https://github.com/fly2nbc-oss/media-file-renamer/releases)
+[![Stars](https://img.shields.io/github/stars/fly2nbc-oss/media-file-renamer)](https://github.com/fly2nbc-oss/media-file-renamer)
+[![Downloads](https://img.shields.io/github/downloads/fly2nbc-oss/media-file-renamer/total)](https://github.com/fly2nbc-oss/media-file-renamer/releases)
+[![Built with Tauri](https://img.shields.io/badge/Built%20with-Tauri-FFC131.svg)](https://tauri.app)
+
 **Media File Renamer** ist eine Desktop-Anwendung, die Ordnung in deine Mediensammlung bringt. Durch das Auslesen von Metadaten (EXIF/Video-Tags) werden Dateien präzise nach ihrem Aufnahmedatum benannt. Entwickelt mit **Tauri v2** (Rust + TypeScript) für maximale Performance und eine geringe Dateigröße.
 
 ---
